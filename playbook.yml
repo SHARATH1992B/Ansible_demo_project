@@ -1,0 +1,214 @@
+---
+- name: Setup Developer Workstations
+  hosts: developer_workstations
+  become: yes
+  tasks:
+    - name: Install Bookworm release
+      package:
+        name: bookworm-release
+        state: present
+
+    - name: Install Java 12 SDK
+      package:
+        name: openjdk-12-jdk
+        state: present
+
+    - name: Install Maven
+      package:
+        name: maven
+        state: present
+
+    - name: Install Gradle
+      package:
+        name: gradle
+        state: present
+
+    - name: Install NodeJS 16
+      ansible.builtin.yum:
+        name: "nodejs"
+        state: present
+        update_cache: yes
+
+    - name: Install IntelliJ IDEA
+      ansible.builtin.get_url:
+        url: "https://download-cdn.jetbrains.com/idea/ideaIC-2021.3.2.tar.gz"
+        dest: "/opt"
+        mode: '0777'
+
+    - name: Extract IntelliJ IDEA
+      ansible.builtin.unarchive:
+        src: "/opt/ideaIC-2021.3.2.tar.gz"
+        dest: "/opt/"
+        remote_src: yes
+
+    - name: Create symbolic link for IntelliJ IDEA
+      ansible.builtin.file:
+        src: "/opt/idea-IC-213.6777.52/bin/idea.sh"
+        dest: "/usr/local/bin/idea"
+        state: link
+
+    - name: Install Visual Studio Code
+      ansible.builtin.yum:
+        name: "code"
+        state: present
+        update_cache: yes
+
+    - name: Install Google Chrome
+      ansible.builtin.yum:
+        name: "google-chrome-stable"
+        state: present
+        update_cache: yes
+
+    - name: Install Git
+      package:
+        name: git
+        state: present
+
+    - name: Install Docker
+      ansible.builtin.yum:
+        name: "docker-ce"
+        state: present
+        update_cache: yes
+
+    - name: Install minikube
+      ansible.builtin.yum:
+        name: "minikube"
+        state: present
+        update_cache: yes
+
+    - name: Install MongoDB
+      ansible.builtin.yum:
+        name: "mongodb"
+        state: present
+        update_cache: yes
+
+    - name: Install MySQL
+      ansible.builtin.yum:
+        name: "mysql-server"
+        state: present
+        update_cache: yes
+
+
+- name: Setup Jenkins Master
+  hosts: jenkins_master
+  become: yes
+  tasks:
+    - name: Install Java 12 SDK
+      package:
+        name: openjdk-12-jdk
+        state: present
+
+    - name: Add Jenkins repository key
+      apt_key:
+        url: "https://pkg.jenkins.io/debian/jenkins.io.key"
+        state: present
+
+    - name: Add Jenkins Debian package repository
+      apt_repository:
+        repo: "deb https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+		
+    - name: Install Jenkins
+      apt:
+        name: "jenkins"
+        state: present
+
+    - name: Start Jenkins service
+      service:
+        name: "jenkins"
+        state: started
+        enabled: yes
+		
+   - name: Install Maven
+      package:
+        name: maven
+        state: present
+
+    - name: Install Gradle
+      package:
+        name: gradle
+        state: present
+
+    - name: Install NodeJS 16
+      ansible.builtin.yum:
+        name: "nodejs"
+        state: present
+        update_cache: yes
+
+    - name: Install IntelliJ IDEA
+      ansible.builtin.get_url:
+        url: "https://download-cdn.jetbrains.com/idea/ideaIC-2021.3.2.tar.gz"
+        dest: "/opt"
+        mode: '0777'
+
+    - name: Extract IntelliJ IDEA
+      ansible.builtin.unarchive:
+        src: "/opt/ideaIC-2021.3.2.tar.gz"
+        dest: "/opt/"
+        remote_src: yes
+
+    - name: Install Visual Studio Code
+      ansible.builtin.yum:
+        name: "code"
+        state: present
+        update_cache: yes
+
+    - name: Install Google Chrome
+      ansible.builtin.yum:
+        name: "google-chrome-stable"
+        state: present
+        update_cache: yes
+
+    - name: Install Git
+      package:
+        name: git
+        state: present
+
+    - name: Install Docker
+      ansible.builtin.yum:
+        name: "docker-ce"
+        state: present
+        update_cache: yes
+
+    - name: Install minikube
+      ansible.builtin.yum:
+        name: "minikube"
+        state: present
+        update_cache: yes
+
+    - name: Install MongoDB
+      ansible.builtin.yum:
+        name: "mongodb"
+        state: present
+        update_cache: yes
+
+    - name: Install MySQL
+      ansible.builtin.yum:
+        name: "mysql-server"
+        state: present
+        update_cache: yes
+		
+    - name: Install Jenkins Plugins
+      jenkins_plugin:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - bookworm
+        - pipeline
+        - git
+        - nodejs
+        - maven-plugin
+        - gradle
+        - docker-plugin
+        - kubernetes-cli
+        - mongodb
+        - mysql
+        - intellij-idea-community
+        - visual-studio-code
+        - google-chrome
+        - minikube
+		
+    - name: Restart Jenkins service after plugin installation
+      service:
+        name: jenkins
+        state: restarted
