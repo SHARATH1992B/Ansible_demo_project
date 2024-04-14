@@ -1,0 +1,8 @@
+[developer_workstations]
+ip1
+ip2
+ip3
+ip4
+
+[jenkins_master]
+ip5
