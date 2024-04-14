@@ -140,53 +140,62 @@
         url: "https://download-cdn.jetbrains.com/idea/ideaIC-2021.3.2.tar.gz"
         dest: "/opt"
         mode: '0777'
+      when: intellij_idea_install_on_host | true | bool
 
     - name: Extract IntelliJ IDEA
       ansible.builtin.unarchive:
         src: "/opt/ideaIC-2021.3.2.tar.gz"
         dest: "/opt/"
         remote_src: yes
+      when: intellij_idea_extract_on_host | true | bool
 
     - name: Install Visual Studio Code
       ansible.builtin.yum:
         name: "code"
         state: present
         update_cache: yes
+      when: vscode_install_on_host | true | bool
 
     - name: Install Google Chrome
       ansible.builtin.yum:
         name: "google-chrome-stable"
         state: present
         update_cache: yes
+      when: google_chrome_install_on_host | true | bool
 
     - name: Install Git
       package:
         name: git
         state: present
+      when: git_install_on_host | true | bool
 
     - name: Install Docker
       ansible.builtin.yum:
         name: "docker-ce"
         state: present
         update_cache: yes
+      when: docker_install_on_host | true | bool
 
     - name: Install minikube
       ansible.builtin.yum:
         name: "minikube"
         state: present
         update_cache: yes
+      when: minikube_install_on_host | true | bool
 
     - name: Install MongoDB
       ansible.builtin.yum:
         name: "mongodb"
         state: present
         update_cache: yes
+      when: mongodb_install_on_host | true | bool
 
     - name: Install MySQL
       ansible.builtin.yum:
         name: "mysql-server"
         state: present
         update_cache: yes
+      when: mysql_install_on_host | true | bool
 
     - name: Install Jenkins Plugins
       jenkins_plugin:
